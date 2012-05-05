@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block head_title %}
+{{ page_title }}
+{% endblock %}
+
+
+{% block body %}
+	<header>
+		<h1>{{ page_title }}</h1>
+
+		<nav>
+		<ul>
+			<li><a class="sbutton" href="">HOME</a></li>
+			<li><a class="sbutton" href="">FACEBOOK</a></li>
+			<li><a class="sbutton" href="">GOOGLE</a></li>
+			<li><a class="mbutton" href="">OTHER</a></li>
+			<li><a class="mbutton" href="">HELP</a></li>
+		</ul>
+		</nav>
+	</header>
+
+	<div>
+		<div>いちおう内容</div>
+	</div>
+
+	<footer>フッター</footer>
+{% endblock %}

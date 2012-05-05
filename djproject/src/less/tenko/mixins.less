@@ -1,0 +1,26 @@
+
+// mixinの定義
+// ---------------------
+
+.round_corner(@radius: 10px){
+	border-radius: @radius;
+	-webkit-border-radius: @radius;
+	-moz-border-radius: @radius;
+}
+.animation(@ms: 350ms, @type: ease){
+	transition: @ms @type;
+	-webkit-transition: @ms @type;
+	-moz-transition: @ms @type;
+	-o-transition: @ms @type;
+	-ms-transition: @ms @type;
+}
+.translate(@width: 10px, @height: 0px){
+	transform: translate(@width, @height);
+	-webkit-transform: translate(@width, @height);
+	-moz-transform: translate(@width, @height);
+	-o-transform: translate(@width, @height);
+	-ms-transform: translate(@width, @height);
+}
+
+
+// EOF

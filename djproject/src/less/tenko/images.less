@@ -1,0 +1,59 @@
+
+// 画像の定義
+// ---------------------
+//
+// ```
+// 左上が(0, 0) 右下が(128, 128)となる座標系
+//  (0,0)
+//    +--------------+
+//    |              |
+//    |              |
+//    |              |
+//    |              |
+//    +--------------+
+//               (128,128)
+// ```
+//
+// 画像のスライスを作成するツール(→JSON)→このlessファイル
+// or
+// 複数画像を良い感じに１枚の画像にマージ(→JSON)→このlessファイル
+// というフローで自動生成できるといいな。
+//
+
+@image_dir: "";
+
+.clop_image(@left: 0px, @right: 128px, @top: 0px, @bottom: 128px){
+	width: @right - @left;
+	height: @bottom - @top;
+	background-position: -@left -@top;
+	background-repeat: repeat;
+	background-image: url("@{image_dir}logo.png");
+}
+
+.logo_all {
+	display: inline-block;
+	.clop_image();
+}
+
+.logo_title {
+	display: inline-block;
+	.clop_image(0, 128px, 0px, 64px);
+}
+.logo_001 {
+	display: inline-block;
+	.clop_image(0, 42px, 64px, 128px);
+}
+.logo_002 {
+	display: inline-block;
+	.clop_image(43px, 85px, 64px, 128px);
+}
+.logo_003 {
+	display: inline-block;
+	.clop_image(86px, 128px, 64px, 128px);
+}
+
+.img_003 {
+	.clop_image(86px, 128px, 64px, 128px);
+}
+
+// EOF

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+	<head>
+		<meta charset="utf-8">
+		<title>
+		{% block head_title %}
+		{% endblock %}
+		</title>
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+		<meta name="format-detection" content="telephone=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon" href="icon.png" />
+
+		<link rel="stylesheet" href="/media/css/mobile.css" />
+		<!--[if lt IE 9]>
+		<script src="/media/js/html5.js"></script>
+		<![endif]-->
+		{% block head_link %}
+		{% endblock %}
+
+		<script src="/media/js/jquery-1.6.2.min.js"></script>
+		<script src="/media/js/init.js"></script>
+		{% block head_script %}
+		{% endblock %}
+
+	</head>
+
+	<body>
+		{% block body %}
+		{% endblock %}
+	</body>
+</html>

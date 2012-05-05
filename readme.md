@@ -17,7 +17,7 @@ git init
 echo "venv" >> .gitignore
 git add Procfile djproject readme.md requirements.txt .gitignore 
 git commit
-
+ 
 git remote add origin git@github.com:sporty/fruity-sync.git
 git push origin master
 ```

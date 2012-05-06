@@ -31,3 +31,12 @@ heroku create --stack cedar
 heroku addons:add shared-database
 ```
 
+Deploy手順
+----------
+
+* メンテナンスモード
+
+* Push
+
+* マイグレーション
+

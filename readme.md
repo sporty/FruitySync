@@ -6,10 +6,11 @@ facebook->twitter同期アプリケーション
 
 * virtualenv
 
+```
 virtualenv --distriute venv
 pip install Django South django-debug-toolbar gunicorn psycopg2 tweepy facebook-sdk
 pip freeze > requirements.txt
-
+```
 
 * git初期化
 
@@ -25,7 +26,8 @@ git push origin master
 
 * heroku初期化
 
+```
 heroku create --stack cedar
 heroku addons:add shared-database
-
+```
 

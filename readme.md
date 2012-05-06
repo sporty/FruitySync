@@ -23,7 +23,7 @@ git push origin master
 ```
 
 * heroku初期化
-``
+```
 heroku create --stack cedar
 heroku addons:add shared-database
 ```

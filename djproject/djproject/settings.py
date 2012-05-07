@@ -166,9 +166,22 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'djproject.urls'
 
-# facebookの情報
-FACEBOOK_APP_ID = "157706320961608"
-FACEBOOK_APP_SECRET = "9491642ddd1861ce3a5445afc8bfa7e3"
+
+# Twitterアプリ情報
+# アプリごとに用意されているconsumer_keyとconsumer_secret
+TWITTER_CONSUMER_KEY = "26k3546ZenMk1AiXAKfg"
+TWITTER_CONSUMER_SECRET = "vOmH5kcZofAHy01cGH3VTxkItHKheKNonm6BB5IBhiQ"
+TWITTER_REDIRECT_URL = "http://0.0.0.0:5000/sync/twitter-oauth-callback/"
+
+# Facebookアプリ情報
+#リダイレクトURLをローカルサーバーにするために、debugモードでは切り替える必要がある
+FACEBOOK_APP_ID = "295840793831710"
+FACEBOOK_APP_SECRET = "04b0d34d97ba550f6aef4dccb064f4bb"
+FACEBOOK_REDIRECT_URL = "http://0.0.0.0:5000/sync/facebook-oauth-callback/"
+
+FB_GRAPH_API_BASE = "https://graph.facebook.com/"
+FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
+
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'djproject.wsgi.application'
@@ -194,10 +207,7 @@ INSTALLED_APPS = (
     'gunicorn',
     'debug_toolbar',
 
-    'djproject.tenko',
-    'djproject.auth',
-    'djproject.fat',
-    'djproject.twitter',
+    'djproject.sync',
 )
 
 # A sample logging configuration. The only tangible logging

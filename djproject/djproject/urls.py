@@ -8,10 +8,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     #url(r'^$', 'djproject.views.home', name='home'),
-    url(r'^auth/', include('djproject.auth.urls')),
-    url(r'^tenko/', include('djproject.tenko.urls')),
-    url(r'^fat/', include('djproject.fat.urls')),
-    url(r'^twitter/', include('djproject.twitter.urls')),
+    url(r'^sync/', include('djproject.sync.urls')),
 
     # admin
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

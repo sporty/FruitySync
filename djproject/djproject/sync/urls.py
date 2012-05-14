@@ -9,8 +9,10 @@ urlpatterns = patterns('',
     url(r'^$', views.index, name="sync-index"),
     url(r"^twitter-oauth-callback/$", views.twitter_oauth_callback, name=""),
     url(r"^twitter-oauth/$", views.twitter_oauth, name=""),
+    url(r"^twitter-signup/$", views.twitter_signup, name="sync-twitter-signup"),
     url(r"^facebook-oauth-callback/$", views.facebook_oauth_callback, name=""),
     url(r"^facebook-oauth/$", views.facebook_oauth, name="sync-facebook-oauth"),
+    url(r"^sync/$", views.sync, name="sync-now"),
     url(r"^signup/$", views.signup, name="sync-signup"),
 )
 

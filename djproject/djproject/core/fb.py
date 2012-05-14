@@ -38,10 +38,7 @@ class Wall(object):
 
         @return list 
         """
-        if not self.twitter_consumer_key:
-            or not self.twitter_consumer_secret:
-            or not self.twitter_access_key:
-            or not self.twitter_access_secret:
+        if not self.twitter_consumer_key or not self.twitter_consumer_secret or not self.twitter_access_key or not self.twitter_access_secret:
             raise eh.TwitterAuthError(u"twitterの認証を行ってください")
 
         # twitter api
@@ -204,6 +201,8 @@ class Wall(object):
 
             result.append(id)
 
+        return result
+
     def sync_twitter(self, since, except_ids, except_clients, album_name=None, check_all_status=False):
         """
         twitterからfacebookに同期
@@ -218,13 +217,13 @@ class Wall(object):
         """
 
         # wall_photo
-        album_id = get_wall_photo_id(album_name)
+        album_id = self.get_wall_photo_id(album_name)
 
         # 同期するステータスを整理して取得
-        posts = _find_status(since, except_ids, except_clients, check_all_status)
+        posts = self._find_status(since, except_ids, except_clients, check_all_status)
 
         #facebookに書き込み 
-        result = _post_wall(posts)
+        result = self._post_wall(posts, album_id)
 
         return result
 

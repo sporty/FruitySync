@@ -16,14 +16,17 @@ import facebook
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 
 from django.conf import settings
 
-from models import SnsAccount
+from models import SnsAccount, SyncedTweet
 from forms import SignupForm
+
+import djproject.core.fb as fb
 
 
 @login_required
@@ -48,7 +51,8 @@ def twitter_oauth_callback(request):
     # access_tokenをsessionに保存
     request.session['twitter_access_key'] = access_token.key
     request.session['twitter_access_secret'] = access_token.secret
-    return HttpResponseRedirect(reverse('sync-index', args=[]))
+
+    return HttpResponseRedirect(reverse('sync-twitter-signup', args=[]))
 
 @login_required
 def twitter_oauth(request):
@@ -150,6 +154,27 @@ def facebook_oauth(request):
                 urllib.urlencode(args)
             )
 
+@login_required
+def twitter_signup(request):
+    """
+    twitter情報を保存
+    """
+    # twitter認証が済んでいない場合は認証ページにリダイレクト
+    twitter_access_key = request.session.get('twitter_access_key', None)
+    twitter_access_secret = request.session.get('twitter_access_secret', None)
+    if not twitter_access_key or not twitter_access_secret:
+        return HttpResponseRedirect(reverse('sync-twitter-oauth', args=[]))
+
+    # account情報を取得
+    account = SnsAccount.objects.get(owner=request.user)
+
+    # 保存する。
+    account.twitter_access_key = twitter_access_key
+    account.twitter_access_secret = twitter_access_secret
+    account.save()
+
+    return HttpResponseRedirect(reverse('sync-index', args=[]))
+
 def signup(request):
     """
     facebookでユーザー登録を行う。
@@ -176,7 +201,13 @@ def signup(request):
             user = User.objects.create_user(email, email, password)
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
-            new_user = user.save()
+            user.save()
+            # ログインしてしまう
+
+            login_user = authenticate(username=email, password=password)
+            if login_user is not None:
+                if login_user.is_active:
+                    login(request, login_user)
 
             account = SnsAccount()
             account.owner = user
@@ -228,21 +259,40 @@ def index(request):
 
 
 def sync(request):
-    twitter_access_key = request.session.get('twitter_access_key', None)
-    twitter_access_secret = request.session.get('twitter_access_secret', None)
-    if not twitter_access_key:
-        raise TwitterAuthError(u"twitterの認証を行ってください")
+    """
+    """
+    accounts = SnsAccount.objects.all()
 
-    facebook_access_key = request.session.get('facebook_access_key', None)
-    if not facebook_access_key:
-        raise FacebookAuthError(u"facebookの認証を行ってください")
+    for account in accounts:
+        twitter_access_key = account.twitter_access_key
+        twitter_access_secret = account.twitter_access_secret
+        if not twitter_access_key or not twitter_access_secret:
+            raise TwitterAuthError(u"twitterの認証を行ってください")
 
-    fb_wall = fb.Wall(facebook_access_key)
-    fb_wall.set_twitter_auth(
-            settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET,
-            twitter_access_key, twitter_access_secret
-            )
-    fb_wall.sync_twitter()
+        facebook_access_key = account.facebook_access_token
+        if not facebook_access_key:
+            raise FacebookAuthError(u"facebookの認証を行ってください")
+        except_clients = account.except_twitter_clients
+
+        fb_wall = fb.Wall(facebook_access_key)
+        fb_wall.set_twitter_auth(
+                settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET,
+                twitter_access_key, twitter_access_secret
+                )
+        since = ""
+        synced = SyncedTweet.objects.all()
+        except_ids = [ei.tweet for ei in synced]
+        sync_ids = fb_wall.sync_twitter(since, except_ids, except_clients)
+        print sync_ids
+
+        # SyncedTweetに登録
+        for id in sync_ids:
+            tweet = SyncedTweet()
+            tweet.owner = account
+            tweet.tweet = id
+            tweet.save()
+
+    return HttpResponseRedirect(reverse('sync-index', args=[]))
 
 
 # EOF

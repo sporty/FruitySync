@@ -19,6 +19,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# データベース情報
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', 
@@ -30,56 +31,64 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
-'''
-'''
+
+# Twitterアプリ情報
+# アプリごとに用意されているconsumer_keyとconsumer_secret
+TWITTER_CONSUMER_KEY = "26k3546ZenMk1AiXAKfg"
+TWITTER_CONSUMER_SECRET = "vOmH5kcZofAHy01cGH3VTxkItHKheKNonm6BB5IBhiQ"
+TWITTER_REDIRECT_URL = "http://0.0.0.0:5000/sync/twitter-oauth-callback/"
+
+# Facebookアプリ情報
+#リダイレクトURLをローカルサーバーにするために、debugモードでは切り替える必要がある
+FACEBOOK_APP_ID = "295840793831710"
+FACEBOOK_APP_SECRET = "04b0d34d97ba550f6aef4dccb064f4bb"
+FACEBOOK_REDIRECT_URL = "http://0.0.0.0:5000/sync/facebook-oauth-callback/"
+
+FB_GRAPH_API_BASE = "https://graph.facebook.com/"
+FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
 
 
-#
-# 以下サンプルのherokuデータベース設定
-#
-# herokuで実行した場合は環境変数DATABASE_URLにデータベース接続情報が
-# 格納されている。ローカル実行の際にはないはずなので、自動で切り替わる
-#
+# deploy先で切り替わる情報
 
 # Register database schemes in URLs.
 urlparse.uses_netloc.append('postgres')
 urlparse.uses_netloc.append('mysql')
 
-#print os.environ['DATABASE_URL']
 try:
-    
-    # Check to make sure DATABASES is set in settings.py file.
-    # If not default to {}
-
-    if 'DATABASES' not in locals():
-        DATABASES = {}
-
+    # DATABASE_URL環境変数が存在したら、heroku環境と判断する
     if 'DATABASE_URL' in os.environ:
-        url = urlparse.urlparse(os.environ['DATABASE_URL'])
+        deploy_url = "http://blooming-cloud-8246.herokuapp.com"
+        database_url = urlparse.urlparse(os.environ['DATABASE_URL'])
 
-        # Ensure default database exists.
-        DATABASES['default'] = DATABASES.get('default', {})
-
-        # Update with environment configuration.
+        # herokuで実行した場合は環境変数DATABASE_URLにデータベース接続情報が
+        # 格納されている。ローカル実行の際にはないはずなので、自動で切り替わる
         DATABASES['default'].update({
-            'NAME': url.path[1:],
-            'USER': url.username,
-            'PASSWORD': url.password,
-            'HOST': url.hostname,
-            'PORT': url.port,
+            'NAME': database_url.path[1:],
+            'USER': database_url.username,
+            'PASSWORD': database_url.password,
+            'HOST': database_url.hostname,
+            'PORT': database_url.port,
         })
-        if url.scheme == 'postgres':
+        if database_url.scheme == 'postgres':
             DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-
-        if url.scheme == 'mysql':
+        if database_url.scheme == 'mysql':
             DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+
+        # Twitterアプリ情報
+        TWITTER_CONSUMER_KEY = "RJvS8LyHvqH1ITOq3qOxg"
+        TWITTER_CONSUMER_SECRET = "TcA11JcJwM1JSr2tRhlJgQDDKlInqEDFblsuMmUdfs"
+        TWITTER_REDIRECT_URL = deploy_url+"/sync/twitter-oauth-callback/"
+
+        # Facebookアプリ情報
+        FACEBOOK_APP_ID = "450798718264073"
+        FACEBOOK_APP_SECRET = "40e97b01a0d76603804c4535b7b9f138"
+        FACEBOOK_REDIRECT_URL = deploy_url+"/sync/facebook-oauth-callback/"
+
+        # debugモードをoffにする
+        DEBUG = False
 
 except Exception:
     print 'Unexpected error:', sys.exc_info()
-
-#
-# herokuデータベース設定 ここまで
-#
 
 
 # Local time zone for this installation. Choices can be found here:
@@ -165,23 +174,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'djproject.urls'
-
-
-# Twitterアプリ情報
-# アプリごとに用意されているconsumer_keyとconsumer_secret
-TWITTER_CONSUMER_KEY = "26k3546ZenMk1AiXAKfg"
-TWITTER_CONSUMER_SECRET = "vOmH5kcZofAHy01cGH3VTxkItHKheKNonm6BB5IBhiQ"
-TWITTER_REDIRECT_URL = "http://0.0.0.0:5000/sync/twitter-oauth-callback/"
-
-# Facebookアプリ情報
-#リダイレクトURLをローカルサーバーにするために、debugモードでは切り替える必要がある
-FACEBOOK_APP_ID = "295840793831710"
-FACEBOOK_APP_SECRET = "04b0d34d97ba550f6aef4dccb064f4bb"
-FACEBOOK_REDIRECT_URL = "http://0.0.0.0:5000/sync/facebook-oauth-callback/"
-
-FB_GRAPH_API_BASE = "https://graph.facebook.com/"
-FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
-
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'djproject.wsgi.application'

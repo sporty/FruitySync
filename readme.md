@@ -38,5 +38,22 @@ Deploy手順
 
 * Push
 
+```
+git push heroku master
+```
+
 * マイグレーション
+
+初回
+
+```
+heroku run python djproject/manager syncdb
+```
+
+更新
+
+```
+heroku run python djproject/manager migrate
+```
+
 

@@ -6,4 +6,7 @@ class FacebookAuthError(Exception):
 class TwitterAuthError(Exception):
     pass
 
+class ApiError(Exception):
+    pass
+
 # EOF

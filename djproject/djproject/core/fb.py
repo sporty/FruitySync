@@ -2,6 +2,8 @@
 # coding=utf-8
 
 import os
+import copy
+import datetime
 import webbrowser
 import cgi
 import urllib
@@ -17,6 +19,13 @@ import facebook
 
 import exceptionhandler as eh
 
+class JST(datetime.tzinfo):
+    def utcoffset(self,dt):
+        return datetime.timedelta(hours=9)
+    def dst(self,dt):
+        return datetime.timedelta(0)
+    def tzname(self,dt):
+        return "JST"
 
 class PostEntity(object):
     """
@@ -27,11 +36,11 @@ class Wall(object):
     facebookウォールに他のSNSからの書き込みを同期する
     """
 
-    def _find_status(self, since, except_ids, except_clients=None, check_all_status=False):
+    def _find_status(self, since_id, since_datetime, except_ids, except_clients=None, check_all_status=False):
         """
         tweetからfacebookのwallにかきこむstatusを取得する
 
-        @param since datetime.datetime 同期開始日
+        @param since_id 最後に同期したID
         @param except_ids list 除外tweetIDのリスト
         @param except_clients list 除外clientのリスト
         @param check_all_status
@@ -49,15 +58,29 @@ class Wall(object):
         # tweetを取得しながらpostすべきstatusを整理。新しい順に評価する。
         result = []
 
-        for status in tweepy.Cursor(api.user_timeline, count=32000, include_entities='true').items(32000):
+        print since_datetime
+        for status in tweepy.Cursor(api.user_timeline, count=32000, include_entities='true', since_id=since_id).items(32000):
+            print "djugement... "
+            print status.id
+            print status.created_at
+            #print status.id
             # idが既に書き込み済みなら、終了。これ以上前のツイートは既に反映済みとする。
-            if status.id in except_ids:
+            if str(status.id) in except_ids:
                 if check_all_status:
+                    #print "continue"
                     continue
                 else:
+                    #print "break"
                     break
             # 除外クライアントならスキップ
             if status.source in except_clients:
+                #print "client skip"
+                continue
+            # 開始一時以前ならスキップ
+            ca = copy.copy(status.created_at)
+            #ca = ca.replace(tzinfo=JST()) # timezoneをJSTに変更
+            if since_datetime and ca < since_datetime:
+                #print "client skip"
                 continue
 
             post_type = "wall"
@@ -141,17 +164,21 @@ class Wall(object):
             #Wall photという名前のアルバムは二つ存在するがtypeがwallの方ならアップロード可能
             if album_name and anbum_name == album['name']:
                 album_id = str(album['id'])
+                '''
                 print "find by name."
                 print album['id']
                 print album['name']
                 print album['type']
+                '''
                 break
             elif album['type'] == "wall":
                 album_id = str(album['id'])
+                '''
                 print "find by type."
                 print album['id']
                 print album['name']
                 print album['type']
+                '''
                 break
 
         return album_id
@@ -192,22 +219,26 @@ class Wall(object):
                 else:
                     pass
             except facebook.GraphAPIError, e:
-                print e
-                # 同一投稿ブロック
-                "(#506) Duplicate status message"
-                # 連続と浮こうブロック
-                "(#341) Feed action request limit reached"
-                raise
+                if e == "(#506) Duplicate status message":
+                    # 同一投稿ブロック
+                    print u"同じメッセージ書き込めないエラー"
+                elif e == "(#341) Feed action request limit reached":
+                    # 連続と浮こうブロック
+                    print u"書き込い過ぎエラー"
+                else:
+                    print e
+                raise eh.ApiError(e)
 
             result.append(id)
 
         return result
 
-    def sync_twitter(self, since, except_ids, except_clients, album_name=None, check_all_status=False):
+    def sync_twitter(self, since_id=None, since_datetime=None, except_ids=[], except_clients=[], album_name=None, check_all_status=False):
         """
         twitterからfacebookに同期
 
-        @param since datetime.datetime 同期開始日
+        @param since_id 最後に同期したID
+        @param since_datetime 同期開始の日時
         @param except_ids list 除外tweetIDのリスト
         @param except_clients list 除外clientのリスト
         @param album_name unicode 写真を投稿するアルバムの名前。Noneの場合はWall photos
@@ -216,14 +247,30 @@ class Wall(object):
         @return 反映したtweetIDリスト
         """
 
+        print u"since_id: "
+        print since_id
+        print u"since_datetime: "
+        print since_datetime
+        print u"ids: "
+        print except_ids
+        print u"clients: "
+        print except_clients
+        print u"album_name: "
+        print album_name
+        print u"check_all_status: "
+        print check_all_status
+
         # wall_photo
         album_id = self.get_wall_photo_id(album_name)
 
         # 同期するステータスを整理して取得
-        posts = self._find_status(since, except_ids, except_clients, check_all_status)
+        posts = self._find_status(since_id, since_datetime, except_ids, except_clients, check_all_status)
 
         #facebookに書き込み 
-        result = self._post_wall(posts, album_id)
+        try:
+            result = self._post_wall(posts, album_id)
+        except:
+            raise
 
         return result
 

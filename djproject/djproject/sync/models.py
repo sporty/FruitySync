@@ -36,6 +36,14 @@ class SnsAccount(models.Model):
     # 削除フラグ
     deleted = models.BooleanField(u"削除フラグ")
 
+    def __unicode__(self):
+        return u'%s %s' % (self.owner.first_name, self.owner.last_name)
+
+    class Meta():
+        verbose_name = u"Snsアカウント情報"
+        verbose_name_plural = u"Snsアカウント情報"
+
+
 class SyncedTweet(models.Model):
     """
     同期済みツイート
@@ -49,6 +57,13 @@ class SyncedTweet(models.Model):
     update_at = models.DateTimeField(u"更新日時", auto_now=True, auto_now_add=True)
 
     deleted = models.BooleanField(u"削除フラグ")
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.tweet, self.update_at)
+
+    class Meta():
+        verbose_name = u"同期済みTweet ID"
+        verbose_name_plural = u"同期済みTweet ID"
 
 
 #

@@ -58,11 +58,7 @@ class Wall(object):
         # tweetを取得しながらpostすべきstatusを整理。新しい順に評価する。
         result = []
 
-        print since_datetime
         for status in tweepy.Cursor(api.user_timeline, count=32000, include_entities='true', since_id=since_id).items(32000):
-            print "djugement... "
-            print status.id
-            print status.created_at
             #print status.id
             # idが既に書き込み済みなら、終了。これ以上前のツイートは既に反映済みとする。
             if str(status.id) in except_ids:
@@ -76,11 +72,15 @@ class Wall(object):
             if status.source in except_clients:
                 #print "client skip"
                 continue
-            # 開始一時以前ならスキップ
+            # 開始日時以前ならスキップ
             ca = copy.copy(status.created_at)
             #ca = ca.replace(tzinfo=JST()) # timezoneをJSTに変更
             if since_datetime and ca < since_datetime:
                 #print "client skip"
+                continue
+            # @関連
+            if len(status.entities['user_mentions']):
+                #print "mention skip"
                 continue
 
             post_type = "wall"
@@ -233,7 +233,7 @@ class Wall(object):
 
         return result
 
-    def sync_twitter(self, since_id=None, since_datetime=None, except_ids=[], except_clients=[], album_name=None, check_all_status=False):
+    def sync_twitter(self, since_id=None, since_datetime=None, except_ids=[], except_clients=[], album_name=None, check_all_status=False, dry=False):
         """
         twitterからfacebookに同期
 
@@ -243,6 +243,7 @@ class Wall(object):
         @param except_clients list 除外clientのリスト
         @param album_name unicode 写真を投稿するアルバムの名前。Noneの場合はWall photos
         @param check_all_status 反映済みIDを見つけた時点で終了しない
+        @param dry dry-run
 
         @return 反映したtweetIDリスト
         """
@@ -259,20 +260,26 @@ class Wall(object):
         print album_name
         print u"check_all_status: "
         print check_all_status
+        print u"dry: "
+        print dry
 
         # wall_photo
         album_id = self.get_wall_photo_id(album_name)
 
         # 同期するステータスを整理して取得
         posts = self._find_status(since_id, since_datetime, except_ids, except_clients, check_all_status)
+        pp.pprint(posts)
 
         #facebookに書き込み 
-        try:
-            result = self._post_wall(posts, album_id)
-        except:
-            raise
+        if not dry:
+            try:
+                result = self._post_wall(posts, album_id)
+            except:
+                raise
 
-        return result
+            return result
+
+        return []
 
     def set_twitter_auth(self,
             twitter_consumer_key, twitter_consumer_secret,

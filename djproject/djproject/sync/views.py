@@ -245,54 +245,25 @@ def signup(request):
                 },
                 context_instance=RequestContext(request))
 
+@login_required
+def sync(request):
+    """
+    矯正同期
+    """
+    account = SnsAccount.objects.get(owner=request.user)
+    account.sync()
+
+    return HttpResponseRedirect(reverse('sync-index', args=[]))
+
 def index(request):
     """
+    トップページ
     """
     return render_to_response('sync/index.html',
                 {
                     "page_title": u"ユーザー情報",
                 },
                 context_instance=RequestContext(request))
-
-
-
-
-
-def sync(request):
-    """
-    """
-    accounts = SnsAccount.objects.all()
-
-    for account in accounts:
-        twitter_access_key = account.twitter_access_key
-        twitter_access_secret = account.twitter_access_secret
-        if not twitter_access_key or not twitter_access_secret:
-            raise TwitterAuthError(u"twitterの認証を行ってください")
-
-        facebook_access_key = account.facebook_access_token
-        if not facebook_access_key:
-            raise FacebookAuthError(u"facebookの認証を行ってください")
-        except_clients = account.except_twitter_clients
-
-        fb_wall = fb.Wall(facebook_access_key)
-        fb_wall.set_twitter_auth(
-                settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET,
-                twitter_access_key, twitter_access_secret
-                )
-        since = ""
-        synced = SyncedTweet.objects.all()
-        except_ids = [ei.tweet for ei in synced]
-        sync_ids = fb_wall.sync_twitter(since, except_ids, except_clients)
-        print sync_ids
-
-        # SyncedTweetに登録
-        for id in sync_ids:
-            tweet = SyncedTweet()
-            tweet.owner = account
-            tweet.tweet = id
-            tweet.save()
-
-    return HttpResponseRedirect(reverse('sync-index', args=[]))
 
 
 # EOF

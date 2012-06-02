@@ -8,7 +8,7 @@ import urlparse
 
 # Django settings for djproject project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
@@ -130,8 +130,8 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
-#STATIC_ROOT = os.path.join(BASEDIR, '..', '..', 'static')
+#STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASEDIR, '..', '..', 'static_root')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"

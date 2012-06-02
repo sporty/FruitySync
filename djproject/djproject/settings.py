@@ -8,7 +8,7 @@ import urlparse
 
 # Django settings for djproject project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))

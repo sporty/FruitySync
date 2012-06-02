@@ -22,7 +22,7 @@ if not settings.DEBUG:
     # DEBUGモードでない場合は自前でサービング
     urlpatterns += patterns('',
             url(r'^'+settings.STATIC_URL[1:]+'(?P<path>.*)$', 'django.views.static.serve', {
-                'document_root': settings.STATIC_ROOT,
+                'document_root': settings.STATICFILES_DIRS[0] 
             }),
     )
 

@@ -29,6 +29,7 @@ git push origin master
 ```
 heroku create --stack cedar
 heroku addons:add shared-database
+heroku addons:add scheduler:standard
 ```
 
 Deploy手順

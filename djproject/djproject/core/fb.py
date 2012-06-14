@@ -345,6 +345,7 @@ class Wall(object):
         @return 反映したtweetIDリスト
         """
 
+        '''
         print u"since_id: "
         print since_id
         print u"since_datetime: "
@@ -359,6 +360,7 @@ class Wall(object):
         print check_all_status
         print u"dry: "
         print dry
+        '''
 
         # wall_photo
         album_id = self.get_wall_photo_id(album_name)

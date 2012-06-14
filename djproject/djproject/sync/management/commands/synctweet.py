@@ -31,14 +31,17 @@ class Command(BaseCommand):
         """
         """
 
+        '''
         pp.pprint(args)
         pp.pprint(options)
+        '''
     
         is_dry = options['dry']
 
         accounts = SnsAccount.objects.all()
 
         for account in accounts:
+            print "sync [%s] ..." % (account, )
             account.sync(is_dry)
 
 # EOF

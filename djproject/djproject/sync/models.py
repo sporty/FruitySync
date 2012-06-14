@@ -5,6 +5,9 @@
 ユーザー認証関連
 """
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
 from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -53,7 +56,6 @@ class SnsAccount(models.Model):
             raise FacebookAuthError(u"facebookの認証を行ってください")
         except_clients = self.except_twitter_clients.split(',')
         since_datetime = self.start_at
-        print self.update_at
 
         # リンクに付加されるアイコン
         icon_url = u"http://blooming-cloud-8246.herokuapp.com/static/local/img/twitter.gif"
@@ -65,14 +67,12 @@ class SnsAccount(models.Model):
                 twitter_access_key, twitter_access_secret
                 )
         synced = SyncedTweet.objects.filter(owner=self).order_by('-update_at')
-        #print synced
         since_id = None
         if len(synced):
             since_id = synced[0].tweet
         except_ids = [ei.tweet for ei in synced]
         try:
             sync_ids = fb_wall.sync_twitter(since_id, since_datetime, except_ids, except_clients, None, True, icon_url, is_dry)
-            print sync_ids
         except:
             raise
 

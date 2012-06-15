@@ -13,7 +13,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.conf import settings
 
-import djproject.core.fb as fb
+import djproject.core.sns as sns
 
 class SnsAccount(models.Model):
     """
@@ -58,7 +58,7 @@ class SnsAccount(models.Model):
         since_datetime = self.start_at
 
         # 同期
-        fb_wall = fb.FacebookWall(facebook_access_key)
+        fb_wall = sns.FacebookWall(facebook_access_key)
         fb_wall.set_twitter_auth(
                 settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET,
                 twitter_access_key, twitter_access_secret
@@ -82,6 +82,8 @@ class SnsAccount(models.Model):
                 tweet.save()
             except:
                 raise
+
+        return sync_ids
 
     def __unicode__(self):
         return u'%s %s' % (self.owner.first_name, self.owner.last_name)

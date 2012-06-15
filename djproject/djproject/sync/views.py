@@ -26,8 +26,6 @@ from django.conf import settings
 from models import SnsAccount, SyncedTweet
 from forms import SignupForm
 
-import djproject.core.fb as fb
-
 
 @login_required
 def twitter_oauth_callback(request):
@@ -110,7 +108,7 @@ def facebook_oauth_callback(request):
     verification_code = request.GET.get("code", None)
     if not verification_code:
         raise FacebookAuthError(u"codeがありません")
-    print verification_code
+    #print verification_code
 
     args = dict(
                 client_id=settings.FACEBOOK_APP_ID,
@@ -123,7 +121,7 @@ def facebook_oauth_callback(request):
     )
     access_token_raw = access_token_connection.read()
     response = cgi.parse_qs(access_token_raw)
-    print response
+    #print response
     access_token = response["access_token"][-1]
 
     request.session['facebook_access_key'] = access_token
@@ -189,11 +187,11 @@ def signup(request):
     if not facebook_access_key:
         return HttpResponseRedirect(reverse('sync-facebook-oauth', args=[]))
 
-    print "signup."
+    #print "signup."
 
     # ユーザーを追加する
     if request.method == "POST":
-        print "post."
+        #print "post."
         form = SignupForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
@@ -224,14 +222,14 @@ def signup(request):
                         },
                         context_instance=RequestContext(request))
 
-    print "form."
+    #print "form."
     # 情報をフォームに表示
     graph = facebook.GraphAPI(facebook_access_key)
 
     # facebookから情報を取得
     profile = graph.get_object("me")
-    print "profile "+"-"*50
-    pp.pprint(profile)
+    #print "profile "+"-"*50
+    #pp.pprint(profile)
     form = SignupForm({
         "email": profile["email"],
         "first_name": profile["first_name"],
@@ -251,7 +249,7 @@ def sync(request):
     矯正同期
     """
     account = SnsAccount.objects.get(owner=request.user)
-    account.sync()
+    synced = account.sync()
 
     return HttpResponseRedirect(reverse('sync-index', args=[]))
 

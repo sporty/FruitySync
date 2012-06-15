@@ -32,93 +32,72 @@ class PostEntity(object):
     """
     """
 
-class Wall(object):
+# SnsのAPIを扱うクラス
+
+class SnsAdapter(object):
     """
-    facebookウォールに他のSNSからの書き込みを同期する
+    """
+
+    def set_auth(self):
+        """
+        認証情報を設定
+        """
+        pass
+
+    def __init__(self):
+        """
+        """
+        pass
+
+class TwitterAdapter(SnsAdapter):
+    """
     """
 
     def get_profile(self):
         """
         """
-        graph = facebook.GraphAPI(self.facebook_access_key)
+        api = self.get_api()
 
-        profile = graph.get_object("me")
-        return profile
-        print "profile "+"-"*50
-        pp.pprint(profile)
+        me = api.me() # 自身のUserクラス取得
+        return me
 
-    def get_friends(self):
+    def get_screen_name(self):
         """
         """
-        graph = facebook.GraphAPI(self.facebook_access_key)
+        profile = self.get_profile()
+        return profile.screen_name
 
-        friends = graph.get_connections("me", "friends")
-        return friends
-        print "friends "+"-"*50
-        pp.pprint(friends)
-
-    def get_albums(self):
-        """
-        """
-        graph = facebook.GraphAPI(self.facebook_access_key)
-
-        albums = graph.get_object("me/albums")
-        return albums
-        print "albums "+"-"*50
-        pp.pprint(albums)
-
-    def get_feeds(self):
-        """
-        """
-        graph = facebook.GraphAPI(self.facebook_access_key)
-
-        feeds = graph.get_object("me/feed")
-        return feeds
-
-    def get_twitter_profile(self):
+    def get_api(self):
         """
         """
         # twitter api
         auth = tweepy.OAuthHandler(self.twitter_consumer_key, self.twitter_consumer_secret)
         auth.set_access_token(self.twitter_access_key, self.twitter_access_secret)
-        api = tweepy.API(auth_handler=auth)
+        return tweepy.API(auth_handler=auth)
 
-        me = api.me() # 自身のUserクラス取得
-        return me
-
-        for key in dir(twitter_profile):
-            if key.startswith("__"):
-                continue
-
-            try:
-                method = getattr(twitter_profile, key)
-                print key+" : ",
-                pp.pprint(method())
-            except:
-                print key+" is uncallable.",
-
-        pp.pprint(twitter_profile.id)
-        pp.pprint(twitter_profile.id_str)
-        pp.pprint(twitter_profile.screen_name)
-        pp.pprint(twitter_profile.default_profile)
-
-    def _get_twitter_screen_name(self):
+    def set_auth(self,
+            twitter_consumer_key, twitter_consumer_secret,
+            twitter_access_key, twitter_access_secret
+            ):
         """
+        認証情報を設定
         """
-        profile = self.get_twitter_profile()
-        return profile.screen_name
+        self.twitter_consumer_key = twitter_consumer_key
+        self.twitter_consumer_secret = twitter_consumer_secret
+        self.twitter_access_key = twitter_access_key
+        self.twitter_access_secret = twitter_access_secret
 
     def _get_action_link(self):
         """
         """
         # twitterアカウントへのリンク
-        screen_name = self._get_twitter_screen_name()
+        screen_name = self.get_screen_name()
         action_name = u"@%s on Twitter" % (screen_name, )
         action_link = u"https://twitter.com/#!/%s" % (screen_name, )
         action = json.dumps({u'name': action_name, u'link': action_link})
         return action
 
-    def _find_status(self, since_id, since_datetime, except_ids, except_clients=None, check_all_status=False):
+    def find_status(self, since_id, since_datetime, except_ids, except_clients=None, check_all_status=False):
         """
         tweetからfacebookのwallにかきこむstatusを取得する
 
@@ -212,12 +191,16 @@ class Wall(object):
                 '''
             """
 
+            action = self._get_action_link()
+
             post = dict(
                     type=post_type, 
                     id=status.id, 
                     message=message, 
                     photos=photo_filenames, 
-                    date=status.created_at
+                    date=status.created_at,
+                    action=action,
+                    source=status.source
                     )
 
             result.append(post)
@@ -226,6 +209,102 @@ class Wall(object):
         result.reverse()
 
         return result
+
+    def __init__(self,
+            twitter_consumer_key=None, twitter_consumer_secret=None,
+            twitter_access_key=None, twitter_access_secret=None
+            ):
+        """
+        コンストラクター
+        """
+    
+        if twitter_consumer_key and twitter_consumer_secret and twitter_access_key and twitter_access_secret:
+            self.set_auth(
+                twitter_consumer_key, twitter_consumer_secret,
+                twitter_access_key, twitter_access_secret
+            )
+
+class FacebookAdapter(SnsAdapter):
+    """
+    facebook api を使ってfacebook情報にアクセス
+    """
+
+    def put_feed(self, message, action=None):
+        """
+        """
+        graph = self.get_api()
+        graph.put_object("me", "feed", message=message.encode('utf-8'), actions=action)
+
+    def put_photo(self, message, photo_filename, album_id=None, action=None):
+        """
+        """
+        graph = self.get_api()
+        graph.put_photo(file(str(photo_filename)), message=message.encode('utf-8'), album_id=album_id, actions=action)
+
+    def post_wall(self, posts, album_id):
+        """
+        ウォールに投稿する。
+
+        @param posts リスト
+        @param album_id 写真をアップロードするアルバムID
+        @return 反映したtweetIDリスト
+        """
+        self._last_posts = []
+
+        for post in posts:
+            id = post['id']
+            post_type = post['type']
+            message = post['message']
+            photos = post['photos']
+            action = post['action']
+
+            try:
+                if post_type == "wall":
+                    self.put_feed(message, action)
+                elif post_type == "photo":
+                    for photo in photos:
+                        if os.path.isfile(photo):
+                            self.put_photo(message, photo, album_id, action)
+                        else:
+                            raise eh.ApiError(u"写真が無いよ [%s]" % (photo, ))
+                else:
+                    pass
+            except facebook.GraphAPIError, e:
+                if e == "(#506) Duplicate status message":
+                    # 同一投稿ブロック
+                    print u"同じメッセージ書き込めないエラー"
+                elif e == "(#341) Feed action request limit reached":
+                    # 連続と浮こうブロック
+                    print u"書き込い過ぎエラー"
+                else:
+                    print e
+                raise eh.ApiError(e)
+
+            self._last_posts.append(id)
+
+        return self._last_posts
+
+    def get_last_posts(self):
+        """
+        """
+
+        return self._last_posts
+
+    def get_profile(self):
+        """
+        """
+        graph = self.get_api()
+
+        profile = graph.get_object("me")
+        return profile
+
+    def get_friends(self):
+        """
+        """
+        graph = self.get_api()
+
+        friends = graph.get_connections("me", "friends")
+        return friends
 
     def get_wall_photo_id(self, album_name=None):
         """
@@ -236,14 +315,12 @@ class Wall(object):
         @param album_name アルバム名unicode文字列
         @return string アルバムID文字列
         """
-        # facebook api
-        graph = facebook.GraphAPI(self.facebook_access_key)
 
         # アルバムか「ウォールの写真」のIDを取得
         album_id = None
-        albums = graph.get_object("me/albums")
+        albums = self.get_albums()
         for album in albums['data']:
-            #Wall photという名前のアルバムは二つ存在するがtypeがwallの方ならアップロード可能
+            #Wall photoという名前のアルバムは二つ存在するがtypeがwallの方ならアップロード可能
             if album_name and anbum_name == album['name']:
                 album_id = str(album['id'])
                 '''
@@ -265,70 +342,48 @@ class Wall(object):
 
         return album_id
 
-    def put_feed(self, message):
+    def get_albums(self):
         """
         """
+        graph = self.get_api()
+
+        albums = graph.get_object("me/albums")
+        return albums
+
+    def get_feeds(self):
+        """
+        """
+        graph = self.get_api()
+
+        feeds = graph.get_object("me/feed")
+        return feeds
+
+    def get_api(self):
+        """
+        """
+
         graph = facebook.GraphAPI(self.facebook_access_key)
+        return graph
 
-        action = self._get_action_link()
-
-        graph.put_object("me", "feed", message=message.encode('utf-8'), actions=action)
-
-    def put_photo(self, message, photo_filename, album_id=None):
+    def set_auth(self, facebook_access_key):
         """
+        認証情報を設定
         """
-        graph = facebook.GraphAPI(self.facebook_access_key)
+        self.facebook_access_key = facebook_access_key
 
-        action = self._get_action_link()
-
-        graph.put_photo(file(str(photo_filename)), message=message.encode('utf-8'), album_id=album_id, actions=action)
-
-    def _post_wall(self, posts, album_id):
+    def __init__(self, facebook_access_key=None):
         """
-        ウォールに投稿する。
-
-        @param posts リスト
-        @param album_id 写真をアップロードするアルバムID
-        @return 反映したtweetIDリスト
+        コンストラクター
         """
-        result = []
+    
+        if facebook_access_key:
+            self.set_auth(facebook_access_key)
 
-        if not self.facebook_access_key:
-            raise eh.FacebookAuthError(u"facebookの認証を行ってください")
 
-        for post in posts:
-            print post
-            id = post['id']
-            post_type = post['type']
-            message = post['message']
-            photos = post['photos']
-
-            try:
-                if post_type == "wall":
-                    self.put_feed(message)
-                elif post_type == "photo":
-                    for photo in photos:
-                        print photo
-                        if os.path.isfile(photo):
-                            self.put_photo(message, photo, album_id)
-                        else:
-                            print u"写真が無いよ"
-                else:
-                    pass
-            except facebook.GraphAPIError, e:
-                if e == "(#506) Duplicate status message":
-                    # 同一投稿ブロック
-                    print u"同じメッセージ書き込めないエラー"
-                elif e == "(#341) Feed action request limit reached":
-                    # 連続と浮こうブロック
-                    print u"書き込い過ぎエラー"
-                else:
-                    print e
-                raise eh.ApiError(e)
-
-            result.append(id)
-
-        return result
+class FacebookWall(object):
+    """
+    facebookウォールに他のSNSからの書き込みを同期する
+    """
 
     def sync_twitter(self, since_id=None, since_datetime=None, except_ids=[], except_clients=[], album_name=None, check_all_status=False, dry=False):
         """
@@ -345,34 +400,17 @@ class Wall(object):
         @return 反映したtweetIDリスト
         """
 
-        '''
-        print u"since_id: "
-        print since_id
-        print u"since_datetime: "
-        print since_datetime
-        print u"ids: "
-        print except_ids
-        print u"clients: "
-        print except_clients
-        print u"album_name: "
-        print album_name
-        print u"check_all_status: "
-        print check_all_status
-        print u"dry: "
-        print dry
-        '''
+        # 同期するステータスを整理して取得
+        posts = self._twitter.find_status(since_id, since_datetime, except_ids, except_clients, check_all_status)
+        pp.pprint(posts)
 
         # wall_photo
-        album_id = self.get_wall_photo_id(album_name)
-
-        # 同期するステータスを整理して取得
-        posts = self._find_status(since_id, since_datetime, except_ids, except_clients, check_all_status)
-        pp.pprint(posts)
+        album_id = self._facebook.get_wall_photo_id(album_name)
 
         #facebookに書き込み 
         if not dry:
             try:
-                result = self._post_wall(posts, album_id)
+                result = self._facebook.post_wall(posts, album_id)
             except:
                 raise
 
@@ -387,16 +425,19 @@ class Wall(object):
         """
         twitter認証情報を設定
         """
-        self.twitter_consumer_key = twitter_consumer_key
-        self.twitter_consumer_secret = twitter_consumer_secret
-        self.twitter_access_key = twitter_access_key
-        self.twitter_access_secret = twitter_access_secret
+        self._twitter = TwitterAdapter(
+                                twitter_consumer_key,
+                                twitter_consumer_secret,
+                                twitter_access_key,
+                                twitter_access_secret
+                            )
 
     def __init__(self, facebook_access_key):
         """
         コンストラクタ
         """
-        self.facebook_access_key = facebook_access_key
+        self._twitter = None
+        self._facebook = FacebookAdapter(facebook_access_key)
 
 
 if __name__ == "__main__":
@@ -407,7 +448,7 @@ if __name__ == "__main__":
     twitter_access_key = "567942112-Zwh7PUGMkUb4yCK69XLPzhCB54ZXOgIItPvi0fPu"
     twitter_access_secret = "CQfJcxLXUmhx2jAaaeLg52IhuZwVKL8CcbVn9EBV7Q"
 
-    fb_wall = Wall(facebook_access_key)
+    fb_wall = FacebookWall(facebook_access_key)
     fb_wall.set_twitter_auth(
             TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET,
             twitter_access_key, twitter_access_secret

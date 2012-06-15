@@ -57,9 +57,6 @@ class SnsAccount(models.Model):
         except_clients = self.except_twitter_clients.split(',')
         since_datetime = self.start_at
 
-        # リンクに付加されるアイコン
-        icon_url = u"http://blooming-cloud-8246.herokuapp.com/static/local/img/twitter.gif"
-
         # 同期
         fb_wall = fb.Wall(facebook_access_key)
         fb_wall.set_twitter_auth(
@@ -72,7 +69,7 @@ class SnsAccount(models.Model):
             since_id = synced[0].tweet
         except_ids = [ei.tweet for ei in synced]
         try:
-            sync_ids = fb_wall.sync_twitter(since_id, since_datetime, except_ids, except_clients, None, True, icon_url, is_dry)
+            sync_ids = fb_wall.sync_twitter(since_id, since_datetime, except_ids, except_clients, None, True, is_dry)
         except:
             raise
 

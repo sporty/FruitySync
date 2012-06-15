@@ -265,25 +265,25 @@ class Wall(object):
 
         return album_id
 
-    def put_feed(self, message, icon=None):
+    def put_feed(self, message):
         """
         """
         graph = facebook.GraphAPI(self.facebook_access_key)
 
         action = self._get_action_link()
 
-        graph.put_object("me", "feed", message=message.encode('utf-8'), actions=action, icon=icon)
+        graph.put_object("me", "feed", message=message.encode('utf-8'), actions=action)
 
-    def put_photo(self, message, photo_filename, album_id=None, icon=None):
+    def put_photo(self, message, photo_filename, album_id=None):
         """
         """
         graph = facebook.GraphAPI(self.facebook_access_key)
 
         action = self._get_action_link()
 
-        graph.put_photo(file(str(photo_filename)), message=message.encode('utf-8'), album_id=album_id, actions=action, icon=icon)
+        graph.put_photo(file(str(photo_filename)), message=message.encode('utf-8'), album_id=album_id, actions=action)
 
-    def _post_wall(self, posts, album_id, icon):
+    def _post_wall(self, posts, album_id):
         """
         ウォールに投稿する。
 
@@ -305,12 +305,12 @@ class Wall(object):
 
             try:
                 if post_type == "wall":
-                    self.put_feed(message, icon)
+                    self.put_feed(message)
                 elif post_type == "photo":
                     for photo in photos:
                         print photo
                         if os.path.isfile(photo):
-                            self.put_photo(message, photo, album_id, icon)
+                            self.put_photo(message, photo, album_id)
                         else:
                             print u"写真が無いよ"
                 else:
@@ -330,7 +330,7 @@ class Wall(object):
 
         return result
 
-    def sync_twitter(self, since_id=None, since_datetime=None, except_ids=[], except_clients=[], album_name=None, check_all_status=False, icon=None, dry=False):
+    def sync_twitter(self, since_id=None, since_datetime=None, except_ids=[], except_clients=[], album_name=None, check_all_status=False, dry=False):
         """
         twitterからfacebookに同期
 
@@ -372,7 +372,7 @@ class Wall(object):
         #facebookに書き込み 
         if not dry:
             try:
-                result = self._post_wall(posts, album_id, icon)
+                result = self._post_wall(posts, album_id)
             except:
                 raise
 

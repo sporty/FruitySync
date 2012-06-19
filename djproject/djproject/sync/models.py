@@ -46,22 +46,14 @@ class SnsAccount(models.Model):
         """
         同期処理
         """
-        twitter_access_key = self.twitter_access_key
-        twitter_access_secret = self.twitter_access_secret
-        if not twitter_access_key or not twitter_access_secret:
-            raise TwitterAuthError(u"twitterの認証を行ってください")
-
-        facebook_access_key = self.facebook_access_token
-        if not facebook_access_key:
-            raise FacebookAuthError(u"facebookの認証を行ってください")
         except_clients = self.except_twitter_clients.split(',')
         since_datetime = self.start_at
 
         # 同期
-        fb_wall = sns.FacebookWall(facebook_access_key)
+        fb_wall = sns.FacebookWall(self.facebook_access_key)
         fb_wall.set_twitter_auth(
                 settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET,
-                twitter_access_key, twitter_access_secret
+                self.twitter_access_key, self.twitter_access_secret
                 )
         synced = SyncedTweet.objects.filter(owner=self).order_by('-update_at')
         since_id = None

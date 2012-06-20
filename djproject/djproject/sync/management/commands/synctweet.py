@@ -42,6 +42,9 @@ class Command(BaseCommand):
 
         for account in accounts:
             print "sync [%s] ..." % (account, )
-            account.sync(is_dry)
+            try:
+                account.sync(is_dry)
+            except Exception, e:
+                print e
 
 # EOF

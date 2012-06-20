@@ -50,7 +50,7 @@ class SnsAccount(models.Model):
         since_datetime = self.start_at
 
         # 同期
-        fb_wall = sns.FacebookWall(self.facebook_access_key)
+        fb_wall = sns.FacebookWall(self.facebook_access_token)
         fb_wall.set_twitter_auth(
                 settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET,
                 self.twitter_access_key, self.twitter_access_secret

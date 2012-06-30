@@ -126,6 +126,14 @@ def facebook_oauth_callback(request):
 
     request.session['facebook_access_key'] = access_token
 
+    if request.user.is_authenticated():
+        # ログイン済みならばアクセスキーの更新
+        account = SnsAccount.objects.get(owner=request.user)
+        account.facebook_access_token = access_token
+        account.save()
+        print "update facebook_access_token."
+
+    # ログインしていない場合はサインアップ
     return HttpResponseRedirect(reverse('sync-signup', args=[]))
 
 def facebook_oauth(request):

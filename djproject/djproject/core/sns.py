@@ -120,28 +120,23 @@ class TwitterAdapter(SnsAdapter):
         result = []
 
         for status in tweepy.Cursor(api.user_timeline, count=32000, include_entities='true', since_id=since_id).items(32000):
-            #print status.id
             # idが既に書き込み済みなら、終了。これ以上前のツイートは既に反映済みとする。
             if str(status.id) in except_ids:
                 if check_all_status:
-                    #print "continue"
                     continue
                 else:
-                    #print "break"
                     break
             # 除外クライアントならスキップ
             if status.source in except_clients:
-                #print "client skip"
                 continue
             # 開始日時以前ならスキップ
             ca = copy.copy(status.created_at)
+            delta = datetime.timedelta(hours=9)
             #ca = ca.replace(tzinfo=JST()) # timezoneをJSTに変更
-            if since_datetime and ca < since_datetime:
-                #print "client skip"
+            if since_datetime and ca < since_datetime-delta:
                 continue
             # @関連
             if len(status.entities['user_mentions']):
-                #print "mention skip"
                 continue
 
             post_type = "wall"
@@ -175,19 +170,13 @@ class TwitterAdapter(SnsAdapter):
             """
             if 'urls' in status.entities.keys():
                 for url in status.entities['urls']:
-                    print url
                     contents = urllib.urlopen(url)
-                    print contents.geturl()
-                    print contents.info()
 
             # ツイートに写真のリンクが含まれていた場合はダウンロードし、photoにアップロード
             m = re.findall(ur"(http://[a-zA-Z0-9._\-/%&?]+)", message)
             for link in m:
-                #print link
                 '''
                 contents = urllib.urlopen(link)
-                print contents.geturl()
-                print contents.info()
                 '''
             """
 
@@ -323,21 +312,9 @@ class FacebookAdapter(SnsAdapter):
             #Wall photoという名前のアルバムは二つ存在するがtypeがwallの方ならアップロード可能
             if album_name and anbum_name == album['name']:
                 album_id = str(album['id'])
-                '''
-                print "find by name."
-                print album['id']
-                print album['name']
-                print album['type']
-                '''
                 break
             elif album['type'] == "wall":
                 album_id = str(album['id'])
-                '''
-                print "find by type."
-                print album['id']
-                print album['name']
-                print album['type']
-                '''
                 break
 
         return album_id
@@ -402,7 +379,6 @@ class FacebookWall(object):
 
         # 同期するステータスを整理して取得
         posts = self._twitter.find_status(since_id, since_datetime, except_ids, except_clients, check_all_status)
-        pp.pprint(posts)
 
         # wall_photo
         album_id = self._facebook.get_wall_photo_id(album_name)

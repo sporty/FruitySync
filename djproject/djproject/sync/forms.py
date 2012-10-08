@@ -10,30 +10,33 @@ class SignupForm(forms.Form):
 
     email = forms.EmailField(
                     required=True,
-                    label='email address'
+                    label='email address',
+                    widget=forms.HiddenInput
                 )
 
     first_name = forms.CharField( 
                     required=True,
                     max_length=30,
-                    label='UserName' 
+                    label=u'姓' 
                 )
     
     last_name = forms.CharField( 
                     required=True,
                     max_length=30,
-                    label='UserName' 
+                    label=u'名' 
                 )
     
     password = forms.CharField(
                     required=True,
                     max_length=128,
-                    widget=forms.PasswordInput 
+                    widget=forms.PasswordInput,
+                    label=u'パスワード' 
                 )
     password_reply = forms.CharField(
                     required=True,
                     max_length=128,
-                    widget=forms.PasswordInput 
+                    widget=forms.PasswordInput,
+                    label=u'パスワード再入力' 
                 )
         
 # EOF

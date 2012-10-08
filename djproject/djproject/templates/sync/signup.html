@@ -11,7 +11,11 @@
 		<div>
 			<form method="POST" action="">
 				<table>
-				{{ form }}
+					<tr>
+						<th><label for="id_first_name">アカウント名:</label></th>
+						<td>{{ email }}</td>
+					</tr>
+					{{ form }}
 				<table>
 				{% csrf_token %}
 				<input type="submit" name="submit" value="登録">

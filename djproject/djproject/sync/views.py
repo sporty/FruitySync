@@ -247,6 +247,7 @@ def signup(request):
     return render_to_response('sync/signup.html',
                 {
                     "page_title": u"ユーザー登録",
+                    "email": profile["email"],
                     "form": form,
                 },
                 context_instance=RequestContext(request))
@@ -254,10 +255,12 @@ def signup(request):
 @login_required
 def sync(request):
     """
-    矯正同期
+    強制同期
     """
     account = SnsAccount.objects.get(owner=request.user)
     synced = account.sync()
+
+    request.session['message'] = u'%d件のTweetを同期しました。' % (len(synced))
 
     return HttpResponseRedirect(reverse('sync-index', args=[]))
 
@@ -265,9 +268,33 @@ def index(request):
     """
     トップページ
     """
+
+
+    twitter_label = u"twitter認証がまだ行われていません。同期を開始するためには認証してください。"
+    facebook_label = u"Facebook認証"
+    sync_enable = False
+
+    if request.user.is_authenticated():
+        # account情報を取得
+        account = SnsAccount.objects.get(owner=request.user)
+
+        # 保存する。
+        if account.twitter_access_key and account.twitter_access_secret:
+            twitter_label = u"Twitter再認証"
+
+        if account.facebook_access_token:
+            facebook_label = u"Facebook再認証"
+        
+        if account.twitter_access_key and account.twitter_access_secret and account.facebook_access_token:
+            sync_enable = True
+
     return render_to_response('sync/index.html',
                 {
-                    "page_title": u"ユーザー情報",
+                    "system_message": request.session.pop('message', None),
+                    "page_title": u"Twitter →  Facebook連携",
+                    "twitter_label": twitter_label,
+                    "facebook_label": facebook_label,
+                    "sync_enable": sync_enable,
                 },
                 context_instance=RequestContext(request))
 

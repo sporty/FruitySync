@@ -1,0 +1,180 @@
+
+// 定義
+// ---------------------
+
+@media (max-width: 480px) {
+	/*
+	iPhone横向きまでは縦に羅列。フォントはやや小さく。
+
+	+------------------------+
+	|TITLE                   |
+	+------------------------+
+	|MENU                    |
+	+------------------------+
+	|AD                      |
+	+------------------------+
+	|CONTENTS                |
+	|                        |
+	|                        |
+	+------------------------+
+	|FOOTER                  |
+	+------------------------+
+	*/
+	body {
+		font-size: 0.7em;
+	}
+}
+@media (min-width: 481px) and (max-width: 768px) {
+	/*
+	iPad横向き未満までは気持ち画面が狭いのでメニューを画面上部に移動。ただし位置は固定。
+
+	+------------------------+
+	|TITLE                   |
+	+------------------------+
+	|MENU                    |
+	+-------------+----------+
+	| CONTENTS    | AD       |
+	|             |          |
+	|             |          |
+	+-------------+----------+
+	|FOOTER                  |
+	+------------------------+
+	*/
+
+	body {
+		@menu_height: 30px; // 画面上部のメニューは横並びに下ので高さを30pxで固定
+		@ad_width: 250px; // 広告エリアは幅固定で250px
+
+		@title_height: 40px;
+
+		#title {
+			position: fixed;
+			top: 0;
+			width: 100%;
+			height: @title_height;
+		}
+		#menu {
+			position: fixed;
+			top: @title_height;
+			width: 100%;
+			height: @menu_height;
+
+			li {
+				width: 140px;
+				display: inline;
+			}
+		}
+
+		#main {
+			padding-left: 0;
+			padding-top: @title_height+@menu_height;
+
+			#adframe {
+				float: right;
+				width: @ad_width;
+				height: 1000px;
+			}
+
+			#contents_wrapper {
+			}
+			#contents {
+				margin-right: @ad_width;
+			}
+		}
+
+		footer {
+			clear: both;
+		}
+	}
+}
+@media (min-width: 769px) {
+	/*
+	iPad横向き以上はPCと同じ扱い。タイトルとメニューは位置固定。
+
+	+------------------------+
+	|TITLE                   |
+	+----+-------------+-----+
+	|MENU| CONTENTS    | AD  |
+	|    |             |     |
+	|    |             |     |
+	+---+--------------+-----+
+	|FOOTER                  |
+	+------------------------+
+	*/
+
+	body {
+		@menu_width: 200px; // メニューエリアは幅固定で200px
+		@ad_width: 250px; // 広告エリアは幅固定で250px
+
+		@title_height: 40px;
+
+		#title {
+			position: fixed;
+			top: 0;
+			width: 100%;
+			height: @title_height;
+		}
+		#menu {
+			position: fixed;
+			top: @title_height;
+			width: @menu_width;
+		}
+
+		#main {
+			padding-left: @menu_width;
+			padding-top: @title_height;
+
+			#adframe {
+				float: right;
+				width: @ad_width; 
+				height: 1000px;
+			}
+
+			#contents_wrapper {
+			}
+			#contents {
+				margin-right: @ad_width;
+			}
+		}
+
+		footer {
+			clear: both;
+		}
+	}
+}
+
+
+/*
+ブラウザー毎の差異を吸収する
+*/
+html, head, body, div, p, table, thead, tbody, tr, td, th, h1, h2, h3, h4, h5, li{
+	padding: 0;
+	margin: 0;
+}
+ul, ol{
+	margin: 0;
+	padding: 0 0 0 40px;
+}
+
+/*
+色など、メディアクエリーで変化しない属性を定義
+*/
+body {
+	.blue {
+		background-color: rgb(200, 200, 255);
+	}
+	.green {
+		background-color: rgb(200, 255, 201);
+	}
+	.red {
+		background-color: rgb(255, 200, 201);
+	}
+	.yellow {
+		background-color: rgb(233, 245, 12);
+	}
+	.cyan {
+		background-color: rgb(12, 233, 245);
+	}
+}
+
+/* EOF */

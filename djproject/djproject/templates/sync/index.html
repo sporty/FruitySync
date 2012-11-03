@@ -4,10 +4,64 @@
 {{ page_title }}
 {% endblock %}
 
+{% block head_style %}
+<style type="text/css">
+	body {
+		padding-top: 60px;
+		padding-bottom: 40px;
+	}
+</style>
+{% endblock %}
 
 {% block body %}
-	<div>
-		<h1>{{ page_title }}</h1>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">{{ page_title }}</a>
+
+		  <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">これは何？</a></li>
+                  <li><a href="#">使い方</a></li>
+                  <li class="divider"></li>
+                  <li class="nav-header">その他</li>
+                  <li><a href="#">開発者情報</a></li>
+                  <li><a href="#">ライセンス情報</a></li>
+                </ul>
+              </li>
+            </ul>
+		{% if user.is_authenticated %}
+			<p class="navbar-text pull-right">ようこそ {{ user.last_name }} {{ user.first_name }} さん（<a href="/accounts/logout/?next=/sync/">サインアウト</a>）</p>
+		{% else %}
+			<p class="navbar-text pull-right"><a class="" href="signup/">facebookアカウントでサインアップ</a>、または<a href="/accounts/login/?next=/sync/">サインイン</a>してください</p>
+		{% endif %}
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+		<div class="hero-unit">
+			<h1>{{ page_title }}</h1>
+			<p>TwitterからFacebookにTweetを連携するウェブサービスです。</p>
+			<p>画像のコピーも同時に行いますので、TwitterとFacebookを個別に管理が可能になります。</p>
+		</div>
+
+      <!-- Example row of columns -->
+      <div class="row">
 
 		{% if system_message %}
 		<p>
@@ -15,9 +69,8 @@
 		</p>
 		{% endif %}
 
+        <div class="span4">
 		{% if user.is_authenticated %}
-			<p>ようこそ {{ user.last_name }} {{ user.first_name }} さん（<a href="/accounts/logout/?next=/sync/">サインアウト</a>）</p>
-
 			<ul>
 				<li><a class="" href="twitter-oauth/">{{ twitter_label }}</a></li>
 				<li><a class="" href="facebook-oauth/">{{ facebook_label }}</a></li>
@@ -29,5 +82,13 @@
 			<p><a class="" href="signup/">facebookアカウントでサインアップ</a>、または<a href="/accounts/login/?next=/sync/">サインイン</a>してください</p>
 		{% endif %}
 
+		</div>
 	</div>
+
+		<footer>
+		<hr />
+		<p>
+			&copy;Ryo Takahashi, 2012
+		</p>
+		</footer>
 {% endblock %}

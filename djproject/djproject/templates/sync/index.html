@@ -43,7 +43,7 @@
               </li>
             </ul>
 		{% if user.is_authenticated %}
-			<p class="navbar-text pull-right">ようこそ {{ user.last_name }} {{ user.first_name }} さん（<a href="/accounts/logout/?next=/sync/">サインアウト</a>）</p>
+			<p class="navbar-text pull-right">{{ user.last_name }} {{ user.first_name }} （<a href="/accounts/logout/?next=/sync/">サインアウト</a>）</p>
 		{% else %}
 			<p class="navbar-text pull-right"><a class="" href="signup/">facebookアカウントでサインアップ</a>、または<a href="/accounts/login/?next=/sync/">サインイン</a>してください</p>
 		{% endif %}

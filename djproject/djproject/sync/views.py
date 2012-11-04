@@ -291,7 +291,7 @@ def index(request):
     return render_to_response('sync/index.html',
                 {
                     "system_message": request.session.pop('message', None),
-                    "page_title": u"Twitter →  Facebook連携",
+                    "page_title": u"FruitySync",
                     "twitter_label": twitter_label,
                     "facebook_label": facebook_label,
                     "sync_enable": sync_enable,

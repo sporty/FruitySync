@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 )
 
-if not settings.DEBUG:
+if settings.DEBUG:
     # DEBUGモードでない場合は自前でサービング
     urlpatterns += patterns('',
             url(r'^'+settings.STATIC_URL[1:]+'(?P<path>.*)$', 'django.views.static.serve', {

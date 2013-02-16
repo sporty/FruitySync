@@ -3,7 +3,6 @@
 
 import os
 import sys
-import urlparse
 
 
 # Django settings for djproject project.
@@ -22,13 +21,12 @@ MANAGERS = ADMINS
 # データベース情報
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', 
-                                        # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASEDIR, 'database.sqlite'), # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'db_fsync',
+        'USER': 'fsync',
+        'PASSWORD': 'fsync0623',
+        'HOST': "MBA-4.local",
+        'PORT': '3306',
     }
 }
 
@@ -49,46 +47,47 @@ FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
 
 
 # deploy先で切り替わる情報
-
-# Register database schemes in URLs.
-urlparse.uses_netloc.append('postgres')
-urlparse.uses_netloc.append('mysql')
-
 try:
-    # DATABASE_URL環境変数が存在したら、heroku環境と判断する
-    if 'DATABASE_URL' in os.environ:
-        deploy_url = "http://blooming-cloud-8246.herokuapp.com"
-        database_url = urlparse.urlparse(os.environ['DATABASE_URL'])
-
-        # herokuで実行した場合は環境変数DATABASE_URLにデータベース接続情報が
-        # 格納されている。ローカル実行の際にはないはずなので、自動で切り替わる
-        DATABASES['default'].update({
-            'NAME': database_url.path[1:],
-            'USER': database_url.username,
-            'PASSWORD': database_url.password,
-            'HOST': database_url.hostname,
-            'PORT': database_url.port,
-        })
-        if database_url.scheme == 'postgres':
-            DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-        if database_url.scheme == 'mysql':
+    if "HOSTNAME" in os.environ:
+        # dev.smiletechnology.jp
+        if os.environ["HOSTNAME"] == "dev.smiletechnology.jp":
+            DATABASES['default'].update({
+                'NAME': "db_fsync",
+                'USER': "fsync",
+                'PASSWORD': "fsync0623",
+                'HOST': "localhost",
+                'PORT': "3306",
+            })
             DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
 
-        # Twitterアプリ情報
-        TWITTER_CONSUMER_KEY = "RJvS8LyHvqH1ITOq3qOxg"
-        TWITTER_CONSUMER_SECRET = "TcA11JcJwM1JSr2tRhlJgQDDKlInqEDFblsuMmUdfs"
-        TWITTER_REDIRECT_URL = deploy_url+"/sync/twitter-oauth-callback/"
+        elif os.environ["HOSTNAME"] == "smiletechnology.jp":
+            DATABASES['default'].update({
+                'NAME': "db_fsync",
+                'USER': "fsync",
+                'PASSWORD': "fsync0623",
+                'HOST': "localhost",
+                'PORT': "3306",
+            })
+            DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
 
-        # Facebookアプリ情報
-        FACEBOOK_APP_ID = "450798718264073"
-        FACEBOOK_APP_SECRET = "40e97b01a0d76603804c4535b7b9f138"
-        FACEBOOK_REDIRECT_URL = deploy_url+"/sync/facebook-oauth-callback/"
+            deploy_url = "http://blooming-cloud-8246.herokuapp.com"
 
-        # debugモードをoffにする
-        DEBUG = False
+            # Twitterアプリ情報
+            TWITTER_CONSUMER_KEY = "RJvS8LyHvqH1ITOq3qOxg"
+            TWITTER_CONSUMER_SECRET = "TcA11JcJwM1JSr2tRhlJgQDDKlInqEDFblsuMmUdfs"
+            TWITTER_REDIRECT_URL = deploy_url+"/sync/twitter-oauth-callback/"
+
+            # Facebookアプリ情報
+            FACEBOOK_APP_ID = "450798718264073"
+            FACEBOOK_APP_SECRET = "40e97b01a0d76603804c4535b7b9f138"
+            FACEBOOK_REDIRECT_URL = deploy_url+"/sync/facebook-oauth-callback/"
+
+            # debugモードをoffにする
+            DEBUG = False
 
 except Exception:
     print 'Unexpected error:', sys.exc_info()
+    raise
 
 
 # Local time zone for this installation. Choices can be found here:

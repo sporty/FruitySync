@@ -1,9 +1,13 @@
 Django==1.4
+Fabric==1.5.3
 MySQL-python==1.2.4
 South==0.7.4
 distribute==0.6.34
 django-debug-toolbar==0.9.4
 facebook-sdk==0.3.0
+flake8==1.7.0
 gunicorn==0.14.2
+paramiko==1.9.0
+pycrypto==2.6
 tweepy==1.9
 wsgiref==0.1.2

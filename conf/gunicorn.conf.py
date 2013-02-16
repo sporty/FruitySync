@@ -6,8 +6,8 @@ workers = 3
 daemon = True
 pidfile = '/var/run/gunicorn/fsync.pid'
 
-user  = 'ryo'
-group = 'staff'
+user  = 'fsync'
+group = 'fsync'
 umask = 0002
 
 loglevel = 'info'

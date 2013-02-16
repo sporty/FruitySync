@@ -48,6 +48,25 @@ def migration(app="fsync", djangoapps=["sync", ]):
 
 
 @task
+def create_user(app="fsync"):
+    """
+    実行ユーザー作成
+    """
+    username = app
+    groupname = app
+
+    with fabric.api.settings(warn_only=True):
+        # グループ作成
+        if run("groupadd %s" % (groupname, )).failed:
+            pass
+
+        # ユーザー作成
+        if run("id %s" % (username, )).failed:
+            run("adduser -g %s %s" % (groupname, username))
+            run("passwd %s" % (username, ))
+
+
+@task
 def create_table(app="fsync"):
     """
     データベース初期設定

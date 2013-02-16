@@ -10,7 +10,7 @@ user  = 'fsync'
 group = 'fsync'
 umask = 0002
 
-loglevel = 'info'
+loglevel = 'debug'
 logconfig = None
 access_logfile = '/var/log/gunicorn/fsync_access.log'
 error_logfile = '/var/log/gunicorn/fsync_error.log'

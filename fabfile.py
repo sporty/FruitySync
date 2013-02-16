@@ -6,15 +6,10 @@
 """
 
 import os
-import datetime
-import csv
-import re
 
 import fabric.api
-from fabric.api import lcd, local, get, cd, prefix, run, abort
-from fabric.contrib.console import confirm
+from fabric.api import cd, prefix, run
 from fabric.decorators import task
-from fabric.colors import green, red
 
 
 '''
@@ -103,7 +98,7 @@ def deploy(app="fsync", repo="https://github.com/sporty/fruity-sync.git"):
         # アプリケーション更新
         app_dirname = os.path.join(app_basedir, app)
         with fabric.api.settings(warn_only=True):
-            if run("test -d %s" %(app_dirname, )).failed:
+            if run("test -d %s" % (app_dirname, )).failed:
                 # 取得
                 run("git clone %s %s" % (repo, app_dirname))
 
@@ -130,15 +125,22 @@ def start(app="fsync"):
         app_dirname = os.path.join(app_basedir, app, "djproject")
         with cd(app_dirname):
             # サーバーの起動
-            run("gunicorn --conf ../conf/gunicorn.conf.py djproject.wsgi:application")
+            cmd = [
+                "gunicorn",
+                "--conf",
+                "../conf/gunicorn.conf.py",
+                "djproject.wsgi:application",
+            ]
+            run(" ".join(cmd))
+
 
 @task
 def reload(app="fsync"):
     """
-    サーバー起動または再起動
+    サーバー設定の再読み込み
     """
 
-    pid_filename = "/var/run/gunicorn/%s.pid" %(app, )
+    pid_filename = "/var/run/gunicorn/%s.pid" % (app, )
 
     if run("test -f "+pid_filename):
         # サーバーの再読み込み

@@ -43,6 +43,32 @@ def migration(app="fsync", djangoapps=["sync", ]):
 
 
 @task
+def setup_supervisor(app="fsync"):
+    """
+    supervisorの設定ファイル更新
+    """
+    # 設定ファイルのコピー
+    env_confs = {
+        "dev.smiletechnology.jp": [
+            "conf/fsync.ini",
+            "/etc/supervisor.d/fsync.ini",
+        ],
+        "smiletechnology.jp": [],
+    }
+
+    hostname = fabric.api.env.host
+    confs = env_confs[hostname]
+    if not confirm("really setup %s?" % (hostname, )):
+        fabric.api.abort("")
+
+    for conf in confs:
+        put(conf[0], conf[1])
+
+    # supervisorのリロード
+    pass
+
+
+@task
 def create_user(app="fsync"):
     """
     実行ユーザー作成

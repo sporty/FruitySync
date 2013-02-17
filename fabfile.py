@@ -117,7 +117,9 @@ def reload(app="fsync"):
     """
 
     # supervisorのリロード
-    run("supervisorctl restart sync")
+    #run("supervisorctl restart fsync")
+    run("/etc/init.d/supervisord restart")
+    #run("/etc/init.d/nginx restart")
 
 
 # EOF

@@ -43,28 +43,6 @@ def migration(app="fsync", djangoapps=["sync", ]):
 
 
 @task
-def setup_supervisor(app="fsync"):
-    """
-    supervisorの設定ファイル更新
-    """
-    # 設定ファイルのコピー
-    env_confs = {
-        "dev.smiletechnology.jp": [
-            ("conf/fsync.ini", "/etc/supervisor.d/fsync.ini"),
-        ],
-        "smiletechnology.jp": [],
-    }
-
-    hostname = fabric.api.env.host
-    confs = env_confs[hostname]
-    for conf in confs:
-        fabric.api.put(conf[0], conf[1])
-
-    # supervisorのリロード
-    run("/etc/init.d/supervisord reload")
-
-
-@task
 def create_user(app="fsync"):
     """
     実行ユーザー作成
@@ -133,40 +111,13 @@ def deploy(app="fsync", repo="https://github.com/sporty/fruity-sync.git"):
 
 
 @task
-def start(app="fsync"):
-    """
-    サーバー起動または再起動
-    """
-
-    # venvの切り替え
-    venv_dirname = os.path.join(venv_basedir, app)
-
-    # venv環境セットアップ
-    with prefix("source "+os.path.join(venv_dirname, "bin/activate")):
-
-        app_dirname = os.path.join(app_basedir, app, "djproject")
-        with cd(app_dirname):
-            # サーバーの起動
-            cmd = [
-                "gunicorn",
-                "--conf",
-                "../conf/gunicorn.conf.py",
-                "djproject.wsgi:application",
-            ]
-            run(" ".join(cmd))
-
-
-@task
 def reload(app="fsync"):
     """
-    サーバー設定の再読み込み
+    サーバープロセスの再起動
     """
 
-    pid_filename = "/var/run/gunicorn/%s.pid" % (app, )
-
-    if run("test -f "+pid_filename):
-        # サーバーの再読み込み
-        run("kill -HUP `cat %s`" % (pid_filename, ))
+    # supervisorのリロード
+    run("supervisorctl restart sync")
 
 
 # EOF

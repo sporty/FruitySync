@@ -70,7 +70,7 @@ try:
             })
             DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
 
-            deploy_url = "http://blooming-cloud-8246.herokuapp.com"
+            deploy_url = "http://fsync.smiletechnology.jp"
 
             # Twitterアプリ情報
             TWITTER_CONSUMER_KEY = "RJvS8LyHvqH1ITOq3qOxg"

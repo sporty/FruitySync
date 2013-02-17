@@ -3,14 +3,14 @@
 
 bind = "0.0.0.0:8000"
 workers = 3
-daemon = True
+daemon = False
 pidfile = '/var/run/gunicorn/fsync.pid'
 
 user  = 'fsync'
 group = 'fsync'
 umask = 0002
 
-loglevel = 'debug'
+loglevel = 'info'
 logconfig = None
 access_logfile = '/var/log/gunicorn/fsync_access.log'
 error_logfile = '/var/log/gunicorn/fsync_error.log'

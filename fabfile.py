@@ -50,22 +50,18 @@ def setup_supervisor(app="fsync"):
     # 設定ファイルのコピー
     env_confs = {
         "dev.smiletechnology.jp": [
-            "conf/fsync.ini",
-            "/etc/supervisor.d/fsync.ini",
+            ("conf/fsync.ini", "/etc/supervisor.d/fsync.ini"),
         ],
         "smiletechnology.jp": [],
     }
 
     hostname = fabric.api.env.host
     confs = env_confs[hostname]
-    if not confirm("really setup %s?" % (hostname, )):
-        fabric.api.abort("")
-
     for conf in confs:
-        put(conf[0], conf[1])
+        fabric.api.put(conf[0], conf[1])
 
     # supervisorのリロード
-    pass
+    run("/etc/init.d/supervisord reload")
 
 
 @task

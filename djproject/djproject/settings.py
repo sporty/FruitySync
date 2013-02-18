@@ -46,51 +46,6 @@ FB_GRAPH_API_BASE = "https://graph.facebook.com/"
 FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
 
 
-# deploy先で切り替わる情報
-try:
-    if "HOSTNAME" in os.environ:
-        # dev.smiletechnology.jp
-        if os.environ["HOSTNAME"] == "dev.smiletechnology.jp":
-            DATABASES['default'].update({
-                'NAME': "db_fsync",
-                'USER': "fsync",
-                'PASSWORD': "fsync0623",
-                'HOST': "localhost",
-                'PORT': "3306",
-            })
-            DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
-
-            DEBUG = False
-        elif os.environ["HOSTNAME"] == "smiletechnology.jp":
-            DATABASES['default'].update({
-                'NAME': "db_fsync",
-                'USER': "fsync",
-                'PASSWORD': "fsync0623",
-                'HOST': "localhost",
-                'PORT': "3306",
-            })
-            DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
-
-            deploy_url = "http://fsync.smiletechnology.jp"
-
-            # Twitterアプリ情報
-            TWITTER_CONSUMER_KEY = "RJvS8LyHvqH1ITOq3qOxg"
-            TWITTER_CONSUMER_SECRET = "TcA11JcJwM1JSr2tRhlJgQDDKlInqEDFblsuMmUdfs"
-            TWITTER_REDIRECT_URL = deploy_url+"/sync/twitter-oauth-callback/"
-
-            # Facebookアプリ情報
-            FACEBOOK_APP_ID = "450798718264073"
-            FACEBOOK_APP_SECRET = "40e97b01a0d76603804c4535b7b9f138"
-            FACEBOOK_REDIRECT_URL = deploy_url+"/sync/facebook-oauth-callback/"
-
-            # debugモードをoffにする
-            DEBUG = False
-
-except Exception:
-    print 'Unexpected error:', sys.exc_info()
-    raise
-
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -155,6 +110,62 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '87y%dfg*-&amp;3fi8-*21&amp;!kls@d8%p&amp;=e7^^i+!cn+5u4i=u70gx'
+
+
+
+
+# deploy先で切り替わる情報
+try:
+    if "HOSTNAME" in os.environ:
+        # dev.smiletechnology.jp
+        if os.environ["HOSTNAME"] == "dev.smiletechnology.jp":
+            DATABASES['default'].update({
+                'NAME': "db_fsync",
+                'USER': "fsync",
+                'PASSWORD': "fsync0623",
+                'HOST': "localhost",
+                'PORT': "3306",
+            })
+            DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+
+            DEBUG = False
+
+            STATIC_URL = '/'
+
+        elif os.environ["HOSTNAME"] == "smiletechnology.jp":
+            DATABASES['default'].update({
+                'NAME': "db_fsync",
+                'USER': "fsync",
+                'PASSWORD': "fsync0623",
+                'HOST': "localhost",
+                'PORT': "3306",
+            })
+            DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+
+            deploy_url = "http://fsync.smiletechnology.jp"
+
+            # Twitterアプリ情報
+            TWITTER_CONSUMER_KEY = "RJvS8LyHvqH1ITOq3qOxg"
+            TWITTER_CONSUMER_SECRET = "TcA11JcJwM1JSr2tRhlJgQDDKlInqEDFblsuMmUdfs"
+            TWITTER_REDIRECT_URL = deploy_url+"/sync/twitter-oauth-callback/"
+
+            # Facebookアプリ情報
+            FACEBOOK_APP_ID = "450798718264073"
+            FACEBOOK_APP_SECRET = "40e97b01a0d76603804c4535b7b9f138"
+            FACEBOOK_REDIRECT_URL = deploy_url+"/sync/facebook-oauth-callback/"
+
+            # debugモードをoffにする
+            DEBUG = False
+
+            STATIC_URL = '/'
+
+except Exception:
+    print 'Unexpected error:', sys.exc_info()
+    raise
+
+
+
+
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

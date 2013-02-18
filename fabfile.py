@@ -79,7 +79,7 @@ def create_table(app="fsync"):
 
 
 @task
-def deploy(app="fsync", repo="https://github.com/sporty/FruitySync.git"):
+def deploy(app="fsync", repo="git@github.com:sporty/FruitySync.git"):
     """
     デプロイ
     """
@@ -100,7 +100,8 @@ def deploy(app="fsync", repo="https://github.com/sporty/FruitySync.git"):
         with fabric.api.settings(warn_only=True):
             if run("test -d %s" % (app_dirname, )).failed:
                 # 取得
-                run("git clone %s %s" % (repo, app_dirname))
+                if run("git clone %s %s" % (repo, app_dirname)).failed:
+                    fabric.api.abort("can't clone git repository. (%s)" % (repo, ))
 
         with cd(app_dirname):
             # 最新のファイルに更新

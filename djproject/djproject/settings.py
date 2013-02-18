@@ -60,6 +60,7 @@ try:
             })
             DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
 
+            DEBUG = False
         elif os.environ["HOSTNAME"] == "smiletechnology.jp":
             DATABASES['default'].update({
                 'NAME': "db_fsync",

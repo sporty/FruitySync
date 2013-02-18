@@ -79,7 +79,7 @@ def create_table(app="fsync"):
 
 
 @task
-def deploy(app="fsync", repo="https://github.com/sporty/fruity-sync.git"):
+def deploy(app="fsync", repo="https://github.com/sporty/FruitySync.git"):
     """
     デプロイ
     """

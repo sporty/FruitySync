@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import os
+import shutil
 import copy
 import datetime
 import webbrowser
@@ -12,6 +13,9 @@ import json
 import random
 import re
 import random
+import tempfile
+import logging
+logger = logging.getLogger('application')
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -19,6 +23,7 @@ import tweepy
 import facebook
 
 import exceptionhandler as eh
+
 
 class JST(datetime.tzinfo):
     def utcoffset(self,dt):
@@ -161,10 +166,12 @@ class TwitterAdapter(SnsAdapter):
                     download_url = media['media_url_https']
                     request = urllib2.Request(download_url)
                     response = urllib2.urlopen(request)
-                    filename = os.path.basename(download_url)
-                    photo_filenames.append(filename)
+
+                    filename = os.path.join(self.TEMPORARY_DIR,
+                            os.path.basename(download_url))
                     with file(filename, "w") as fp:
                         fp.write(response.read())
+                    photo_filenames.append(filename)
 
             """
             if 'urls' in status.entities.keys():
@@ -198,6 +205,11 @@ class TwitterAdapter(SnsAdapter):
 
         return result
 
+    def __del__(self):
+        # 一時ファイル置き場を削除
+
+        shutil.rmtree(self.TEMPORARY_DIR)
+
     def __init__(self,
             twitter_consumer_key=None, twitter_consumer_secret=None,
             twitter_access_key=None, twitter_access_secret=None
@@ -206,6 +218,10 @@ class TwitterAdapter(SnsAdapter):
         コンストラクター
         """
     
+        # 一時ファイル置き場を作成
+        self.TEMPORARY_DIR = tempfile.mkdtemp()
+        logger.debug('make temporary directory : '+self.TEMPORARY_DIR)
+
         if twitter_consumer_key and twitter_consumer_secret and twitter_access_key and twitter_access_secret:
             self.set_auth(
                 twitter_consumer_key, twitter_consumer_secret,

@@ -3,6 +3,7 @@
 
 import os
 import sys
+import logging
 
 
 # Django settings for djproject project.
@@ -17,6 +18,57 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# ロガーの設定。通常は
+# logger = logging.getlogger('application')
+# として使用することを想定している。
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/gunicorn/fsync_application.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'application': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    }
+}
+
+
+
+
+
 
 # データベース情報
 DATABASES = {
@@ -44,6 +96,8 @@ FACEBOOK_REDIRECT_URL = "http://127.0.0.1:8000/sync/facebook-oauth-callback/"
 
 FB_GRAPH_API_BASE = "https://graph.facebook.com/"
 FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
+
+
 
 
 # Local time zone for this installation. Choices can be found here:
@@ -110,7 +164,6 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '87y%dfg*-&amp;3fi8-*21&amp;!kls@d8%p&amp;=e7^^i+!cn+5u4i=u70gx'
-
 
 
 
@@ -226,54 +279,6 @@ INSTALLED_APPS = (
 
     'djproject.sync',
 )
-
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'logfile': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/gunicorn/fsync_application.log',
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'application': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    }
-}
 
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',

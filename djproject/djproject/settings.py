@@ -32,15 +32,15 @@ DATABASES = {
 
 # Twitterアプリ情報
 # アプリごとに用意されているconsumer_keyとconsumer_secret
-TWITTER_CONSUMER_KEY = "26k3546ZenMk1AiXAKfg"
-TWITTER_CONSUMER_SECRET = "vOmH5kcZofAHy01cGH3VTxkItHKheKNonm6BB5IBhiQ"
-TWITTER_REDIRECT_URL = "http://fsync.dev.smiletechnology.jp/sync/twitter-oauth-callback/"
+TWITTER_CONSUMER_KEY = "JnliV6hmrYYND2BdEe3PQ"
+TWITTER_CONSUMER_SECRET = "asuJ0jSnfFvioTMqzSzPJMaLz0f0NPCAFtDv4lsEOl0"
+TWITTER_REDIRECT_URL = "http://127.0.0.1:8000/sync/twitter-oauth-callback/"
 
 # Facebookアプリ情報
 #リダイレクトURLをローカルサーバーにするために、debugモードでは切り替える必要がある
-FACEBOOK_APP_ID = "295840793831710"
-FACEBOOK_APP_SECRET = "04b0d34d97ba550f6aef4dccb064f4bb"
-FACEBOOK_REDIRECT_URL = "http://fsync.dev.smiletechnology.jp/sync/facebook-oauth-callback/"
+FACEBOOK_APP_ID = "416167055143877"
+FACEBOOK_APP_SECRET = "160a403e46c11268d5c4ff07469d6915"
+FACEBOOK_REDIRECT_URL = "http://127.0.0.1:8000/sync/facebook-oauth-callback/"
 
 FB_GRAPH_API_BASE = "https://graph.facebook.com/"
 FB_AUTH_BASE = FB_GRAPH_API_BASE+"oauth/"
@@ -127,6 +127,18 @@ try:
                 'PORT': "3306",
             })
             DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+
+            deploy_url = "http://fsync.dev.smiletechnology.jp"
+
+            # Twitterアプリ情報
+            TWITTER_CONSUMER_KEY = "26k3546ZenMk1AiXAKfg"
+            TWITTER_CONSUMER_SECRET = "vOmH5kcZofAHy01cGH3VTxkItHKheKNonm6BB5IBhiQ"
+            TWITTER_REDIRECT_URL = deploy_url+"/sync/twitter-oauth-callback/"
+
+            # Facebookアプリ情報
+            FACEBOOK_APP_ID = "295840793831710"
+            FACEBOOK_APP_SECRET = "04b0d34d97ba550f6aef4dccb064f4bb"
+            FACEBOOK_REDIRECT_URL = deploy_url+"/sync/facebook-oauth-callback/"
 
             DEBUG = False
 
@@ -223,6 +235,14 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -233,12 +253,23 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/gunicorn/fsync_application.log',
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'application': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }

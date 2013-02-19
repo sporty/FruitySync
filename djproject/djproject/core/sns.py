@@ -163,9 +163,8 @@ class TwitterAdapter(SnsAdapter):
                     response = urllib2.urlopen(request)
                     filename = os.path.basename(download_url)
                     photo_filenames.append(filename)
-                    fp = file(filename, "w")
-                    fp.write(response.read())
-                    fp.close()
+                    with file(filename, "w") as fp:
+                        fp.write(response.read())
 
             """
             if 'urls' in status.entities.keys():

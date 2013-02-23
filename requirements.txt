@@ -9,5 +9,5 @@ flake8==1.7.0
 gunicorn==0.14.2
 paramiko==1.9.0
 pycrypto==2.6
-tweepy==1.9
+tweepy==2.0
 wsgiref==0.1.2

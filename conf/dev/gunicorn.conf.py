@@ -10,7 +10,7 @@ user  = 'fsync'
 group = 'fsync'
 umask = 0002
 
-settings = 'djproject.settings_dev'
+django_settings = 'djproject.settings_dev'
 
 loglevel = 'info'
 logconfig = None

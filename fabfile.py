@@ -62,6 +62,22 @@ def create_user(app="fsync"):
 
 
 @task
+def setup_cron(app="fsync", disable=False):
+    """
+    crontabの設定
+    """
+
+    cronfile = "conf/cron.txt"
+
+    app_dirname = os.path.join(app_basedir, app)
+    with cd(app_dirname):
+        if disable==True:
+            run("crontab -u fsync -r")
+        else:
+            run("crontab -u fsync %s" % (cronfile, ))
+
+
+@task
 def create_table(app="fsync"):
     """
     データベース初期設定

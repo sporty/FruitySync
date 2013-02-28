@@ -62,6 +62,67 @@ def create_user(app="fsync"):
 
 
 @task
+def setup_supervisor(app="fsync"):
+    """
+    supervisorの設定
+    """
+
+    # 設定ファイルのコピー
+    env_confs = {
+        "dev.smiletechnology.jp": [
+            ("conf/dev/supervisor/fsync.ini",
+                "/etc/supervisord.d/fsync.ini"),
+        ],
+        "smiletechnology.jp": [
+            ("conf/prod/supervisor/fsync.ini",
+                "/etc/supervisord.d/fsync.ini"),
+        ],
+    }
+
+    hostname = fabric.api.env.host
+    confs = env_confs[hostname]
+
+    app_dirname = os.path.join(app_basedir, app)
+    with cd(app_dirname):
+        for conf in confs:
+            run("cp %s %s" % (conf[0], conf[1]))
+
+    # supervisordの再起動
+    run("/etc/init.d/supervisord restart")
+
+
+@task
+def setup_nginx(app="fsync"):
+    """
+    nginxの設定
+    """
+
+    # 設定ファイルのコピー
+    env_confs = {
+        "dev.smiletechnology.jp": [
+            ("conf/dev/nginx/fsync.conf",
+                "/etc/nginx/conf.d/fsync.conf"),
+        ],
+        "smiletechnology.jp": [
+            ("conf/prod/nginx/fsync.conf",
+                "/etc/nginx/conf.d/fsync.conf"),
+        ],
+    }
+
+    hostname = fabric.api.env.host
+    confs = env_confs[hostname]
+
+    app_dirname = os.path.join(app_basedir, app)
+    with cd(app_dirname):
+        for conf in confs:
+            run("cp %s %s" % (conf[0], conf[1]))
+
+
+    # nginxの再起動
+    run("/etc/init.d/nginx restart")
+
+
+@task
 def setup_cron(app="fsync", disable=False):
     """
     crontabの設定

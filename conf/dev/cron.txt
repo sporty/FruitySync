@@ -1,1 +1,1 @@
-*/10 * * * * /var/gunicorn/runinenv /var/gunicorn/venvs/fsync /var/gunicorn/apps/fsync/djproject/manage.py synctweet >>/var/log/gunicorn/fsync_cron.log 2>&1
+*/10 * * * * /var/gunicorn/runinenv /var/gunicorn/venvs/fsync /var/gunicorn/apps/fsync/djproject/manage.py --settings=djproject.settings_dev synctweet >>/var/log/gunicorn/fsync_cron.log 2>&1

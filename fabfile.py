@@ -141,7 +141,7 @@ def setup_cron(app="fsync", disable=False):
     hostname = fabric.api.env.host
     confs = env_confs[hostname]
 
-    cronfile = confs[1]
+    cronfile = confs[0]
 
     app_dirname = os.path.join(app_basedir, app)
     with cd(app_dirname):

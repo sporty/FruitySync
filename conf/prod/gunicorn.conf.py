@@ -10,6 +10,8 @@ user  = 'fsync'
 group = 'fsync'
 umask = 0002
 
+django_settings = 'djproject.settings_prod.py'
+
 loglevel = 'info'
 logconfig = None
 access_logfile = '/var/log/gunicorn/fsync_access.log'

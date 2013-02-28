@@ -67,7 +67,20 @@ def setup_cron(app="fsync", disable=False):
     crontabの設定
     """
 
-    cronfile = "conf/cron.txt"
+    # 設定ファイルのコピー
+    env_confs = {
+        "dev.smiletechnology.jp": [
+            "conf/dev/cron.txt",
+        ],
+        "smiletechnology.jp": [
+            "conf/prod/cron.txt",
+        ],
+    }
+
+    hostname = fabric.api.env.host
+    confs = env_confs[hostname]
+
+    cronfile = confs[1]
 
     app_dirname = os.path.join(app_basedir, app)
     with cd(app_dirname):

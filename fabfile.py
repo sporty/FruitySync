@@ -123,12 +123,38 @@ def setup_nginx(app="fsync"):
 
 
 @task
+def setup_logrotate(app="fsync", disable=False):
+    """
+    logrotateの設定
+    """
+
+    # 設定ファイルのコピー
+    env_confs = {
+        "dev.smiletechnology.jp": [
+            ("conf/dev/logrotate/fsync",
+                "/etc/roglotate.d/fsync"),
+        ],
+        "smiletechnology.jp": [
+            ("conf/prod/logrotate/fsync",
+                "/etc/roglotate.d/fsync"),
+        ],
+    }
+
+    hostname = fabric.api.env.host
+    confs = env_confs[hostname]
+
+    app_dirname = os.path.join(app_basedir, app)
+    with cd(app_dirname):
+        for conf in confs:
+            run("cp %s %s" % (conf[0], conf[1]))
+
+
+@task
 def setup_cron(app="fsync", disable=False):
     """
     crontabの設定
     """
 
-    # 設定ファイルのコピー
     env_confs = {
         "dev.smiletechnology.jp": [
             "conf/dev/cron.txt",

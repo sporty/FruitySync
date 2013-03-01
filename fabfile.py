@@ -132,11 +132,11 @@ def setup_logrotate(app="fsync", disable=False):
     env_confs = {
         "dev.smiletechnology.jp": [
             ("conf/dev/logrotate/fsync",
-                "/etc/roglotate.d/fsync"),
+                "/etc/logrotate.d/fsync"),
         ],
         "smiletechnology.jp": [
             ("conf/prod/logrotate/fsync",
-                "/etc/roglotate.d/fsync"),
+                "/etc/logrotate.d/fsync"),
         ],
     }
 

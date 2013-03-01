@@ -1,4 +1,4 @@
-/var/log/gunicorn/fsync_cron /var/log/gunicorn/fsync_application {
+/var/log/gunicorn/fsync_cron.log /var/log/gunicorn/fsync_application.log {
 	daily
 	rotate 60
 	missingok

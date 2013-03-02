@@ -1,0 +1,14 @@
+/var/log/gunicorn/fsync_cron.log /var/log/gunicorn/fsync_application.log {
+	daily
+	rotate 60
+	missingok
+	notifempty
+	compress
+	delaycompress
+	dateext
+
+	sharedscripts
+	postrotate
+		supervisorctl restart fsync > /dev/null 2>/dev/null || true
+	endscript
+}

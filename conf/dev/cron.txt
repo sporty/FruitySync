@@ -1,1 +1,3 @@
+MAILTO=rt.sporty@gmail.com
+
 */10 * * * * /var/gunicorn/runinenv /var/gunicorn/venvs/fsync /var/gunicorn/apps/fsync/djproject/manage.py synctweet --settings=djproject.settings_dev >>/var/log/gunicorn/fsync_cron.log 2>&1

@@ -17,7 +17,7 @@ DATABASES = {
         'NAME': 'db_fsync',
         'USER': 'fsync',
         'PASSWORD': 'fsync0623',
-        'HOST': "localhost",
+        'HOST': "mysqlinstance.ckoq5hf60pxi.ap-northeast-1.rds.amazonaws.com",
         'PORT': '3306',
     }
 }
